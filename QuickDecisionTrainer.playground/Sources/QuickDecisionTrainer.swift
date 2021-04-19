@@ -234,19 +234,13 @@ public struct SpeedButtonView: View {
                     .background(Color(#colorLiteral(red: 1.0, green: 1.0, blue: 1.0, alpha: 1.0)))
             }
             else {
-                ZStack {
-                    Image(nsImage: NSImage(named: "Speed1.png") ?? NSImage())
-                        .resizable()
-                        .frame(width: 50, height: 50, alignment: .center)
-                        .background(Color(#colorLiteral(red: 1.0, green: 1.0, blue: 1.0, alpha: 1.0)))
-                    Button(action: {
-                        gc.gravityMultiplier = 0.8
-                    }, label: {
-                        Text("")
-                            .frame(width: 50, height: 50, alignment: .center)
-                    })
+                Image(nsImage: NSImage(named: "Speed1.png") ?? NSImage())
+                    .resizable()
                     .frame(width: 50, height: 50, alignment: .center)
-                }
+                    .background(Color(#colorLiteral(red: 1.0, green: 1.0, blue: 1.0, alpha: 1.0)))
+                    .onTapGesture {
+                        gc.gravityMultiplier = 0.8
+                    }
             }
             
             
@@ -258,19 +252,13 @@ public struct SpeedButtonView: View {
                     .background(Color(#colorLiteral(red: 1.0, green: 1.0, blue: 1.0, alpha: 1.0)))
             }
             else {
-                ZStack {
-                    Image(nsImage: NSImage(named: "Speed2.png") ?? NSImage())
-                        .resizable()
-                        .frame(width: 50, height: 50, alignment: .center)
-                        .background(Color(#colorLiteral(red: 1.0, green: 1.0, blue: 1.0, alpha: 1.0)))
-                    Button(action: {
-                        gc.gravityMultiplier = 1.2
-                    }, label: {
-                        Text("")
-                            .frame(width: 50, height: 50, alignment: .center)
-                    })
+                Image(nsImage: NSImage(named: "Speed2.png") ?? NSImage())
+                    .resizable()
                     .frame(width: 50, height: 50, alignment: .center)
-                }
+                    .background(Color(#colorLiteral(red: 1.0, green: 1.0, blue: 1.0, alpha: 1.0)))
+                    .onTapGesture {
+                        gc.gravityMultiplier = 1.2
+                    }
             }
             
             
@@ -282,19 +270,13 @@ public struct SpeedButtonView: View {
                     .background(Color(#colorLiteral(red: 1.0, green: 1.0, blue: 1.0, alpha: 1.0)))
             }
             else {
-                ZStack {
-                    Image(nsImage: NSImage(named: "Speed3.png") ?? NSImage())
-                        .resizable()
-                        .frame(width: 50, height: 50, alignment: .center)
-                        .background(Color(#colorLiteral(red: 1.0, green: 1.0, blue: 1.0, alpha: 1.0)))
-                    Button(action: {
-                        gc.gravityMultiplier = 3.0
-                    }, label: {
-                        Text("")
-                            .frame(width: 50, height: 50, alignment: .center)
-                    })
+                Image(nsImage: NSImage(named: "Speed3.png") ?? NSImage())
+                    .resizable()
                     .frame(width: 50, height: 50, alignment: .center)
-                }
+                    .background(Color(#colorLiteral(red: 1.0, green: 1.0, blue: 1.0, alpha: 1.0)))
+                    .onTapGesture {
+                        gc.gravityMultiplier = 3.0
+                    }
             }
         }
         .background(Color(#colorLiteral(red: 1.0, green: 1.0, blue: 1.0, alpha: 1.0)))
@@ -484,21 +466,24 @@ public struct GameView: View {
                     .font(.system(size: 35))
                     .padding(25)
                     .frame(width: 375, height: 300, alignment: .center)
-                    ZStack {
-                        RoundedRectangle(cornerRadius: 20)
-                            .foregroundColor(Color(#colorLiteral(red: 0.1725490196, green: 0.6666666667, blue: 0.9450980392, alpha: 1)))
-                        Button(action:{
-                            gc.gameOver = false
-                            gc.rounds = 0
-                            gc.x = Int.random(in: 3...7)
-                            gc.updateRmn()
-                            gc.updateRmx()
-                            gc.updateY()
-                            gc.timeToWin = 120
-                            scene.value = GameScene(gc: self.gc, keyEvent: self.keyEventPublisher)
-                        }, label: {Text("Play Again")})
-                    }
-                    .frame(width: 250, height: 50, alignment: /*@START_MENU_TOKEN@*/.center/*@END_MENU_TOKEN@*/)
+                    
+                    Button(action:{
+                        gc.gameOver = false
+                        gc.rounds = 0
+                        gc.x = Int.random(in: 3...7)
+                        gc.updateRmn()
+                        gc.updateRmx()
+                        gc.updateY()
+                        gc.timeToWin = 120
+                        scene.value = GameScene(gc: self.gc, keyEvent: self.keyEventPublisher)
+                    }, label: {
+                        Text("Play Again")
+                            .frame(width: 250, height: 50, alignment: .center)
+                            .contentShape(RoundedRectangle(cornerRadius: 20))
+                    })
+                        .buttonStyle(PlainButtonStyle())
+                        .background(Color(#colorLiteral(red: 0.1725490196, green: 0.6666666667, blue: 0.9450980392, alpha: 1)))
+                        .clipShape(RoundedRectangle(cornerRadius: 20))
                 }
             }
         }
@@ -569,16 +554,20 @@ public struct WelcomeView: View {
                         PlaygroundPage.current.setLiveView(GameView().padding(25))
                     }, label: {
                         Text("Play")
+                            .frame(width: 150, height: 35, alignment: .center)
+                            .contentShape(RoundedRectangle(cornerRadius: 10))
                     })
-                    .frame(width: 150, height: 35, alignment: .center)
+                    .buttonStyle(PlainButtonStyle())
                     .background(Color(#colorLiteral(red: 0.1725490196, green: 0.6666666667, blue: 0.9450980392, alpha: 1)))
                     .clipShape(RoundedRectangle(cornerRadius: 10))
                     Button(action: {
                         PlaygroundPage.current.setLiveView(TutorialView(page: 1).padding(25))
                     }, label: {
                         Text("Tutorial")
+                            .frame(width: 150, height: 35, alignment: .center)
+                            .contentShape(RoundedRectangle(cornerRadius: 10))
                     })
-                    .frame(width: 150, height: 35, alignment: .center)
+                    .buttonStyle(PlainButtonStyle())
                     .background(Color(#colorLiteral(red: 0.1725490196, green: 0.6666666667, blue: 0.9450980392, alpha: 1)))
                     .clipShape(RoundedRectangle(cornerRadius: 10))
                     .padding(.leading, 35)
@@ -702,8 +691,10 @@ public struct TutorialView: View {
                         PlaygroundPage.current.setLiveView(GameView().padding(25))
                     }, label: {
                         Text("Play")
+                            .frame(width: 150, height: 35, alignment: .center)
+                            .contentShape(RoundedRectangle(cornerRadius: 10))
                     })
-                    .frame(width: 150, height: 35, alignment: .center)
+                    .buttonStyle(PlainButtonStyle())
                     .background(Color(#colorLiteral(red: 0.1725490196, green: 0.6666666667, blue: 0.9450980392, alpha: 1)))
                     .clipShape(RoundedRectangle(cornerRadius: 10))
                     
@@ -712,8 +703,10 @@ public struct TutorialView: View {
                             PlaygroundPage.current.setLiveView(WelcomeView().padding(25))
                         }, label: {
                             Text("Previous")
+                                .frame(width: 150, height: 35, alignment: .center)
+                                .contentShape(RoundedRectangle(cornerRadius: 10))
                         })
-                        .frame(width: 150, height: 35, alignment: .center)
+                        .buttonStyle(PlainButtonStyle())
                         .background(Color(#colorLiteral(red: 0.1725490196, green: 0.6666666667, blue: 0.9450980392, alpha: 1)))
                         .clipShape(RoundedRectangle(cornerRadius: 10))
                         .padding(.leading, 20)
@@ -723,8 +716,10 @@ public struct TutorialView: View {
                             self.page = 2
                         }, label: {
                             Text("Next")
+                                .frame(width: 150, height: 35, alignment: .center)
+                                .contentShape(RoundedRectangle(cornerRadius: 10))
                         })
-                        .frame(width: 150, height: 35, alignment: .center)
+                        .buttonStyle(PlainButtonStyle())
                         .background(Color(#colorLiteral(red: 0.1725490196, green: 0.6666666667, blue: 0.9450980392, alpha: 1)))
                         .clipShape(RoundedRectangle(cornerRadius: 10))
                         .padding(.leading, 20)
@@ -734,8 +729,10 @@ public struct TutorialView: View {
                             self.page = 1
                         }, label: {
                             Text("Previous")
+                                .frame(width: 150, height: 35, alignment: .center)
+                                .contentShape(RoundedRectangle(cornerRadius: 10))
                         })
-                        .frame(width: 150, height: 35, alignment: .center)
+                        .buttonStyle(PlainButtonStyle())
                         .background(Color(#colorLiteral(red: 0.1725490196, green: 0.6666666667, blue: 0.9450980392, alpha: 1)))
                         .clipShape(RoundedRectangle(cornerRadius: 10))
                         .padding(.leading, 20)
@@ -744,8 +741,10 @@ public struct TutorialView: View {
                             self.page = 3
                         }, label: {
                             Text("Next")
+                                .frame(width: 150, height: 35, alignment: .center)
+                                .contentShape(RoundedRectangle(cornerRadius: 10))
                         })
-                        .frame(width: 150, height: 35, alignment: .center)
+                        .buttonStyle(PlainButtonStyle())
                         .background(Color(#colorLiteral(red: 0.1725490196, green: 0.6666666667, blue: 0.9450980392, alpha: 1)))
                         .clipShape(RoundedRectangle(cornerRadius: 10))
                         .padding(.leading, 20)
@@ -755,8 +754,10 @@ public struct TutorialView: View {
                             self.page = 2
                         }, label: {
                             Text("Previous")
+                                .frame(width: 150, height: 35, alignment: .center)
+                                .contentShape(RoundedRectangle(cornerRadius: 10))
                         })
-                        .frame(width: 150, height: 35, alignment: .center)
+                        .buttonStyle(PlainButtonStyle())
                         .background(Color(#colorLiteral(red: 0.1725490196, green: 0.6666666667, blue: 0.9450980392, alpha: 1)))
                         .clipShape(RoundedRectangle(cornerRadius: 10))
                         .padding(.leading, 20)
@@ -765,8 +766,10 @@ public struct TutorialView: View {
                             self.page = 4
                         }, label: {
                             Text("Next")
+                                .frame(width: 150, height: 35, alignment: .center)
+                                .contentShape(RoundedRectangle(cornerRadius: 10))
                         })
-                        .frame(width: 150, height: 35, alignment: .center)
+                        .buttonStyle(PlainButtonStyle())
                         .background(Color(#colorLiteral(red: 0.1725490196, green: 0.6666666667, blue: 0.9450980392, alpha: 1)))
                         .clipShape(RoundedRectangle(cornerRadius: 10))
                         .padding(.leading, 20)
@@ -776,8 +779,10 @@ public struct TutorialView: View {
                             self.page = 3
                         }, label: {
                             Text("Previous")
+                                .frame(width: 150, height: 35, alignment: .center)
+                                .contentShape(RoundedRectangle(cornerRadius: 10))
                         })
-                        .frame(width: 150, height: 35, alignment: .center)
+                        .buttonStyle(PlainButtonStyle())
                         .background(Color(#colorLiteral(red: 0.1725490196, green: 0.6666666667, blue: 0.9450980392, alpha: 1)))
                         .clipShape(RoundedRectangle(cornerRadius: 10))
                         .padding(.leading, 20)
@@ -786,8 +791,10 @@ public struct TutorialView: View {
                             self.page = 5
                         }, label: {
                             Text("Next")
+                                .frame(width: 150, height: 35, alignment: .center)
+                                .contentShape(RoundedRectangle(cornerRadius: 10))
                         })
-                        .frame(width: 150, height: 35, alignment: .center)
+                        .buttonStyle(PlainButtonStyle())
                         .background(Color(#colorLiteral(red: 0.1725490196, green: 0.6666666667, blue: 0.9450980392, alpha: 1)))
                         .clipShape(RoundedRectangle(cornerRadius: 10))
                         .padding(.leading, 20)
@@ -797,8 +804,10 @@ public struct TutorialView: View {
                             self.page = 4
                         }, label: {
                             Text("Previous")
+                                .frame(width: 150, height: 35, alignment: .center)
+                                .contentShape(RoundedRectangle(cornerRadius: 10))
                         })
-                        .frame(width: 150, height: 35, alignment: .center)
+                        .buttonStyle(PlainButtonStyle())
                         .background(Color(#colorLiteral(red: 0.1725490196, green: 0.6666666667, blue: 0.9450980392, alpha: 1)))
                         .clipShape(RoundedRectangle(cornerRadius: 10))
                         .padding(.leading, 20)
@@ -807,8 +816,10 @@ public struct TutorialView: View {
                             self.page = 6
                         }, label: {
                             Text("Next")
+                                .frame(width: 150, height: 35, alignment: .center)
+                                .contentShape(RoundedRectangle(cornerRadius: 10))
                         })
-                        .frame(width: 150, height: 35, alignment: .center)
+                        .buttonStyle(PlainButtonStyle())
                         .background(Color(#colorLiteral(red: 0.1725490196, green: 0.6666666667, blue: 0.9450980392, alpha: 1)))
                         .clipShape(RoundedRectangle(cornerRadius: 10))
                         .padding(.leading, 20)
@@ -818,8 +829,10 @@ public struct TutorialView: View {
                             self.page = 5
                         }, label: {
                             Text("Previous")
+                                .frame(width: 150, height: 35, alignment: .center)
+                                .contentShape(RoundedRectangle(cornerRadius: 10))
                         })
-                        .frame(width: 150, height: 35, alignment: .center)
+                        .buttonStyle(PlainButtonStyle())
                         .background(Color(#colorLiteral(red: 0.1725490196, green: 0.6666666667, blue: 0.9450980392, alpha: 1)))
                         .clipShape(RoundedRectangle(cornerRadius: 10))
                         .padding(.leading, 20)
@@ -828,8 +841,10 @@ public struct TutorialView: View {
                             self.page = 7
                         }, label: {
                             Text("Next")
+                                .frame(width: 150, height: 35, alignment: .center)
+                                .contentShape(RoundedRectangle(cornerRadius: 10))
                         })
-                        .frame(width: 150, height: 35, alignment: .center)
+                        .buttonStyle(PlainButtonStyle())
                         .background(Color(#colorLiteral(red: 0.1725490196, green: 0.6666666667, blue: 0.9450980392, alpha: 1)))
                         .clipShape(RoundedRectangle(cornerRadius: 10))
                         .padding(.leading, 20)
@@ -839,8 +854,10 @@ public struct TutorialView: View {
                             self.page = 6
                         }, label: {
                             Text("Previous")
+                                .frame(width: 150, height: 35, alignment: .center)
+                                .contentShape(RoundedRectangle(cornerRadius: 10))
                         })
-                        .frame(width: 150, height: 35, alignment: .center)
+                        .buttonStyle(PlainButtonStyle())
                         .background(Color(#colorLiteral(red: 0.1725490196, green: 0.6666666667, blue: 0.9450980392, alpha: 1)))
                         .clipShape(RoundedRectangle(cornerRadius: 10))
                         .padding(.leading, 20)
