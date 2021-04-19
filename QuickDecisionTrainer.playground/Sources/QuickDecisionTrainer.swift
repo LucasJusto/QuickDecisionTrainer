@@ -549,6 +549,7 @@ public struct WelcomeView: View {
                     .foregroundColor(.black)
                     .frame(width: 400, height: 45, alignment: /*@START_MENU_TOKEN@*/.center/*@END_MENU_TOKEN@*/)
                     .multilineTextAlignment(.center)
+                    .padding(.bottom, 15)
                 HStack {
                     Button(action: {
                         PlaygroundPage.current.setLiveView(GameView().padding(25))
@@ -678,10 +679,10 @@ public struct TutorialView: View {
                             .multilineTextAlignment(.center)
                     }
                     else if page == 7 {
-                        Text("This is your character. To control it, you need to use the left arrow (move left) and the right arrow (move right) keys from your MacBook's keyboard. The ZBlock which your character makes contact with, is the selected Z. If it goes out of the screen, it will reappear in the other side.")
+                        Text("This is your character. To control it, you need to use the left arrow (move left) and the right arrow (move right) keys from your MacBook's keyboard. The ZBlock which your character makes contact with, is the selected Z. If your character goes out of the screen, it will reappear in the other side.")
                             .font(.system(size: 20))
                             .foregroundColor(.black)
-                            .frame(width: 330, height: 200, alignment: .center)
+                            .frame(width: 330, height: 250, alignment: .center)
                             .padding(20)
                             .multilineTextAlignment(.center)
                     }
