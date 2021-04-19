@@ -2,8 +2,10 @@ import Foundation
 import SpriteKit
 import SwiftUI
 import Combine
+import PlaygroundSupport
 
 class ZBlock: SKSpriteNode {
+    //the class to represent the ZBlock spritenode.
     let z: Int
     var categoryBitMask: UInt32 = 0x1 << 0
     
@@ -25,6 +27,7 @@ class ZBlock: SKSpriteNode {
 }
 
 public class Player: SKSpriteNode {
+    //the classe to represent the player's sprite node.
     var x: CGFloat
     var y: CGFloat
     var categoryBitMask: UInt32 = 0x1 << 1
@@ -32,7 +35,7 @@ public class Player: SKSpriteNode {
     public init() {
         x = (550/2)//center of the screen (550 width).
         y = 50
-        super.init(texture: .none, color: .black, size: CGSize(width: 35, height: 5))
+        super.init(texture: SKTexture(image: NSImage(named: "Player") ?? NSImage()), color: .white, size: CGSize(width: 50, height: 50))
         self.position = CGPoint(x: x, y: y)
         self.physicsBody = SKPhysicsBody(rectangleOf: self.size)
         self.physicsBody?.affectedByGravity = false
@@ -66,15 +69,16 @@ public class Player: SKSpriteNode {
 }
 
 public class GameController: ObservableObject {
+    //the class that store and manage all numbers of the game, also comunicate it to the GUI.
     @Published var x: Int = 0//main number for the player (the base for every calculus across the rounds)
     @Published var y: Int = 0//random number generated to be added at the x
     @Published var rmx: Int = 0 //randomMax: the upper limit, the number which the player can't let x be higher than
     @Published var rmn: Int = 0 //randomMin: the down limit, the number which the player can't let x be lower than
-    @Published var rounds: Int = 0
-    @Published var timeToWin: Int = 120
-    @Published var gameOver: Bool = false
+    @Published var rounds: Int = 0 //number increased after each correct ZBlock chosen.
+    @Published var timeToWin: Int = 120 //time until the player win (in seconds).
+    @Published var gameOver: Bool = false //controls if game is running or already ended.
     @Published var gravityMultiplier: CGFloat = 0.8 //controls zBlocks speed
-    @Published var message: String?
+    @Published var message: String? //message of win or lose.
     
     public init(){
         x = Int.random(in: 3...7)
@@ -93,7 +97,7 @@ public class GameController: ObservableObject {
         var numberOfZBlocks: Int = Int.random(in: 3...5)
         
         if x+y > rmx {
-            //we only need the at least one correct number, if x+y > rmx. becuase if it is <= the player don't need subtract anything to stay in range [rmn,rmx].
+            //we only need the at least one correct number, if x+y > rmx. because if it is <= the player don't need subtract anything to stay in range [rmn,rmx].
             //not catching any zBlock is an option.
             let zCorrect = Int.random(in: x+y-rmx...x+y-rmn)//generates a number that will make x+y-zCorrect stay in the range [rmn,rmx]
             zBlocks.append(zCorrect)
@@ -140,6 +144,7 @@ public class GameController: ObservableObject {
 }
 
 public struct NumberStatusView: View {
+    //top of the screen, shows the GUI of the actual numbers states (how much is X, how much is Y... everything in this view).
     @ObservedObject var gc: GameController
     
     public init(gc: GameController){
@@ -212,7 +217,7 @@ public struct NumberStatusView: View {
 }
 
 public struct SpeedButtonView: View {
-    
+    //GUI for the player to choose the falling speed for ZBlocks
     @ObservedObject var gc: GameController
     
     public init(gc: GameController) {
@@ -297,6 +302,7 @@ public struct SpeedButtonView: View {
 }
 
 public struct InfoView: View {
+    //bottom of the screen, shows the GUI for rounds, time reamining uintil the win and speed buttons control.
     @ObservedObject var gc: GameController
     let timer = Timer.publish(every: 1, on: .main, in: .common).autoconnect()
     
@@ -333,6 +339,7 @@ public struct InfoView: View {
 }
 
 public class GameScene: SKScene, SKPhysicsContactDelegate {
+    //control of all the spritekit part of the game.
     public var gc: GameController
     public var player: Player
     public var baseGravity: CGFloat = -0.1 //basically controlls the speed of the zBlocks
@@ -397,6 +404,7 @@ public class GameScene: SKScene, SKPhysicsContactDelegate {
     }
     
     public func positioningZBlocks(list: [Int]) {
+        //makes ZBlocks spawn at one of the 5 possible positions.
         var positions: [CGFloat] = [75, 175, 275, 375, 475]
         
         for zBlockNumber in list {
@@ -423,6 +431,7 @@ public class GameScene: SKScene, SKPhysicsContactDelegate {
     }
     
     override public func update(_ currentTime: TimeInterval) {
+        //called at each frame update.
         if gc.timeToWin == 0 {
             gc.message = "Congratulations, you won! 😁🎉"
             gc.gameOver = true
@@ -438,13 +447,13 @@ public class GameScene: SKScene, SKPhysicsContactDelegate {
 }
 
 public struct GameView: View {
+    //main view, it unite all GUIs, infoView (bottom), gamescene (mid) and numberstatusview (top).
     @ObservedObject var gc: GameController
     var keyEvent: PassthroughSubject<NSEvent, Never>
     var scene: CurrentValueSubject<GameScene, Never>
     var keyEventPublisher: AnyPublisher<NSEvent, Never>
     
     public init() {
-        //self.scene = GameScene(gc: gc, keyEvent: keyEvent)
         let gc = GameController()
         let keyEvent: PassthroughSubject<NSEvent, Never> = .init()
         let keyEventPublisher = keyEvent.share().eraseToAnyPublisher()
@@ -512,7 +521,7 @@ struct KeyEventHandling: NSViewRepresentable {
     func makeNSView(context: Context) -> NSView {
         let view = KeyView()
         view.keyEvent = keyEvent
-        DispatchQueue.main.async { // wait till next event cycle
+        DispatchQueue.main.async {
             view.window?.makeFirstResponder(view)
         }
         return view
@@ -522,4 +531,323 @@ struct KeyEventHandling: NSViewRepresentable {
     }
 }
 
+public struct WelcomeView: View {
+    //welcome screen, the first screen seen by the user.
+    public init(){
+        
+    }
+    
+    public var body: some View {
+        ZStack {
+            Rectangle()
+                .foregroundColor(Color(#colorLiteral(red: 1.0, green: 1.0, blue: 1.0, alpha: 1.0)))
+                .frame(width: 550, height: 800, alignment: .center)
+            VStack {
+                Text("Welcome to")
+                    .font(.system(size: 35))
+                    .foregroundColor(.black)
+                    .frame(width: 180, height: 35, alignment: .center)
+                Image(nsImage: NSImage(named: "CircleLogo") ?? NSImage())
+                    .resizable()
+                    .frame(width: 200, height: 200, alignment: .center)
+                Text("A game that trains your brain to take quick decisions!")
+                    .font(.system(size: 25))
+                    .foregroundColor(.black)
+                    .frame(width: 325, height: /*@START_MENU_TOKEN@*/100/*@END_MENU_TOKEN@*/, alignment: .center)
+                    .multilineTextAlignment(.center)
+                Rectangle()
+                    .frame(width: 500, height: 1, alignment: .center)
+                    .foregroundColor(.black)
+                    .padding(.vertical,20)
+                Text("Click \"Play\" to start playing, or \"Tutorial\" for an introdution to the game mechanics.")
+                    .font(.system(size: 15))
+                    .foregroundColor(.black)
+                    .frame(width: 400, height: 45, alignment: /*@START_MENU_TOKEN@*/.center/*@END_MENU_TOKEN@*/)
+                    .multilineTextAlignment(.center)
+                HStack {
+                    Button(action: {
+                        PlaygroundPage.current.setLiveView(GameView().padding(25))
+                    }, label: {
+                        Text("Play")
+                    })
+                    .frame(width: 150, height: 35, alignment: .center)
+                    .background(Color(#colorLiteral(red: 0.1725490196, green: 0.6666666667, blue: 0.9450980392, alpha: 1)))
+                    .clipShape(RoundedRectangle(cornerRadius: 10))
+                    Button(action: {
+                        PlaygroundPage.current.setLiveView(TutorialView(page: 1).padding(25))
+                    }, label: {
+                        Text("Tutorial")
+                    })
+                    .frame(width: 150, height: 35, alignment: .center)
+                    .background(Color(#colorLiteral(red: 0.1725490196, green: 0.6666666667, blue: 0.9450980392, alpha: 1)))
+                    .clipShape(RoundedRectangle(cornerRadius: 10))
+                    .padding(.leading, 35)
 
+                }
+            }
+        }
+    }
+}
+
+public struct TutorialView: View {
+    //controlls the graphicall tutorial.
+    @State var page: Int = 1
+    
+    public init(page: Int){
+        self.page = page
+    }
+    
+    public var body: some View {
+        ZStack{
+            if page == 1 {
+                Image(nsImage: NSImage(named: "tutorial1") ?? NSImage())
+                    .resizable()
+                    .frame(width: 550, height: 800, alignment: .center)
+            }
+            else if page == 2 {
+                Image(nsImage: NSImage(named: "tutorial2") ?? NSImage())
+                    .resizable()
+                    .frame(width: 550, height: 800, alignment: .center)
+            }
+            else if page == 3 {
+                Image(nsImage: NSImage(named: "tutorial3") ?? NSImage())
+                    .resizable()
+                    .frame(width: 550, height: 800, alignment: .center)
+            }
+            else if page == 4 {
+                Image(nsImage: NSImage(named: "tutorial4") ?? NSImage())
+                    .resizable()
+                    .frame(width: 550, height: 800, alignment: .center)
+            }
+            else if page == 5 {
+                Image(nsImage: NSImage(named: "tutorial5") ?? NSImage())
+                    .resizable()
+                    .frame(width: 550, height: 800, alignment: .center)
+            }
+            else if page == 6 {
+                Image(nsImage: NSImage(named: "tutorial6") ?? NSImage())
+                    .resizable()
+                    .frame(width: 550, height: 800, alignment: .center)
+            }
+            else if page == 7 {
+                Image(nsImage: NSImage(named: "tutorial7") ?? NSImage())
+                    .resizable()
+                    .frame(width: 550, height: 800, alignment: .center)
+            }
+            
+            VStack {
+                ZStack {
+                    RoundedRectangle(cornerRadius: 10)
+                        .frame(width: 350, height: 250, alignment: .center)
+                    
+                    if page == 1 {
+                        Text("This is your main number (X), your goal in the game is keeping X in between the range [min, max].")
+                            .font(.system(size: 20))
+                            .foregroundColor(.black)
+                            .frame(width: 330, height: 150, alignment: .center)
+                            .padding(20)
+                            .multilineTextAlignment(.center)
+                    }
+                    else if page == 2 {
+                        Text("Every round a random number (Y) is chosen to be added to your X. You need to choose a number Z to subtract from your X + Y, with the goal of keeping the result in between [min, max].")
+                            .font(.system(size: 20))
+                            .foregroundColor(.black)
+                            .frame(width: 330, height: 150, alignment: .center)
+                            .padding(20)
+                            .multilineTextAlignment(.center)
+                    }
+                    else if page == 3 {
+                        Text("The result of the equation (X + Y - Z), will be your X for the next round. For the first round your X is chosen randomly.")
+                            .font(.system(size: 20))
+                            .foregroundColor(.black)
+                            .frame(width: 330, height: 150, alignment: .center)
+                            .padding(20)
+                            .multilineTextAlignment(.center)
+                    }
+                    else if page == 4 {
+                        Text("The range min and max CAN be changed at the end of each round.")
+                            .font(.system(size: 20))
+                            .foregroundColor(.black)
+                            .frame(width: 330, height: 150, alignment: .center)
+                            .padding(20)
+                            .multilineTextAlignment(.center)
+                    }
+                    else if page == 5 {
+                        Text("At the bottom of the screen, you can see the round (each time you choose the right Z, the round is increased by 1), the time left to win (2 minutes without any mistake and you win the game) and you can control the speed of falling of the zBlocks.")
+                            .font(.system(size: 20))
+                            .foregroundColor(.black)
+                            .frame(width: 330, height: 200, alignment: .center)
+                            .padding(20)
+                            .multilineTextAlignment(.center)
+                    }
+                    else if page == 6 {
+                        Text("These are the ZBlocks, the possibilities of numbers from which you can choose your Z. They spawn at each round and the amount will always be 3, 4 or 5. There will always be at least one correct block, and the others are random (correct or incorrect). You can choose not taking any block (Z=0). Choosing the wrong block makes you lose the game.")
+                            .font(.system(size: 20))
+                            .foregroundColor(.black)
+                            .frame(width: 330, height: 250, alignment: .center)
+                            .padding(20)
+                            .multilineTextAlignment(.center)
+                    }
+                    else if page == 7 {
+                        Text("This is your character. To control it, you need to use the left arrow (move left) and the right arrow (move right) keys from your MacBook's keyboard. The ZBlock which your character makes contact with, is the selected Z. If it goes out of the screen, it will reappear in the other side.")
+                            .font(.system(size: 20))
+                            .foregroundColor(.black)
+                            .frame(width: 330, height: 200, alignment: .center)
+                            .padding(20)
+                            .multilineTextAlignment(.center)
+                    }
+                }
+                HStack {
+                    Button(action: {
+                        PlaygroundPage.current.setLiveView(GameView().padding(25))
+                    }, label: {
+                        Text("Play")
+                    })
+                    .frame(width: 150, height: 35, alignment: .center)
+                    .background(Color(#colorLiteral(red: 0.1725490196, green: 0.6666666667, blue: 0.9450980392, alpha: 1)))
+                    .clipShape(RoundedRectangle(cornerRadius: 10))
+                    
+                    if page == 1 {
+                        Button(action: {
+                            PlaygroundPage.current.setLiveView(WelcomeView().padding(25))
+                        }, label: {
+                            Text("Previous")
+                        })
+                        .frame(width: 150, height: 35, alignment: .center)
+                        .background(Color(#colorLiteral(red: 0.1725490196, green: 0.6666666667, blue: 0.9450980392, alpha: 1)))
+                        .clipShape(RoundedRectangle(cornerRadius: 10))
+                        .padding(.leading, 20)
+
+                        
+                        Button(action: {
+                            self.page = 2
+                        }, label: {
+                            Text("Next")
+                        })
+                        .frame(width: 150, height: 35, alignment: .center)
+                        .background(Color(#colorLiteral(red: 0.1725490196, green: 0.6666666667, blue: 0.9450980392, alpha: 1)))
+                        .clipShape(RoundedRectangle(cornerRadius: 10))
+                        .padding(.leading, 20)
+                    }
+                    else if page == 2 {
+                        Button(action: {
+                            self.page = 1
+                        }, label: {
+                            Text("Previous")
+                        })
+                        .frame(width: 150, height: 35, alignment: .center)
+                        .background(Color(#colorLiteral(red: 0.1725490196, green: 0.6666666667, blue: 0.9450980392, alpha: 1)))
+                        .clipShape(RoundedRectangle(cornerRadius: 10))
+                        .padding(.leading, 20)
+                        
+                        Button(action: {
+                            self.page = 3
+                        }, label: {
+                            Text("Next")
+                        })
+                        .frame(width: 150, height: 35, alignment: .center)
+                        .background(Color(#colorLiteral(red: 0.1725490196, green: 0.6666666667, blue: 0.9450980392, alpha: 1)))
+                        .clipShape(RoundedRectangle(cornerRadius: 10))
+                        .padding(.leading, 20)
+                    }
+                    else if page == 3 {
+                        Button(action: {
+                            self.page = 2
+                        }, label: {
+                            Text("Previous")
+                        })
+                        .frame(width: 150, height: 35, alignment: .center)
+                        .background(Color(#colorLiteral(red: 0.1725490196, green: 0.6666666667, blue: 0.9450980392, alpha: 1)))
+                        .clipShape(RoundedRectangle(cornerRadius: 10))
+                        .padding(.leading, 20)
+                        
+                        Button(action: {
+                            self.page = 4
+                        }, label: {
+                            Text("Next")
+                        })
+                        .frame(width: 150, height: 35, alignment: .center)
+                        .background(Color(#colorLiteral(red: 0.1725490196, green: 0.6666666667, blue: 0.9450980392, alpha: 1)))
+                        .clipShape(RoundedRectangle(cornerRadius: 10))
+                        .padding(.leading, 20)
+                    }
+                    else if page == 4 {
+                        Button(action: {
+                            self.page = 3
+                        }, label: {
+                            Text("Previous")
+                        })
+                        .frame(width: 150, height: 35, alignment: .center)
+                        .background(Color(#colorLiteral(red: 0.1725490196, green: 0.6666666667, blue: 0.9450980392, alpha: 1)))
+                        .clipShape(RoundedRectangle(cornerRadius: 10))
+                        .padding(.leading, 20)
+                        
+                        Button(action: {
+                            self.page = 5
+                        }, label: {
+                            Text("Next")
+                        })
+                        .frame(width: 150, height: 35, alignment: .center)
+                        .background(Color(#colorLiteral(red: 0.1725490196, green: 0.6666666667, blue: 0.9450980392, alpha: 1)))
+                        .clipShape(RoundedRectangle(cornerRadius: 10))
+                        .padding(.leading, 20)
+                    }
+                    else if page == 5 {
+                        Button(action: {
+                            self.page = 4
+                        }, label: {
+                            Text("Previous")
+                        })
+                        .frame(width: 150, height: 35, alignment: .center)
+                        .background(Color(#colorLiteral(red: 0.1725490196, green: 0.6666666667, blue: 0.9450980392, alpha: 1)))
+                        .clipShape(RoundedRectangle(cornerRadius: 10))
+                        .padding(.leading, 20)
+                        
+                        Button(action: {
+                            self.page = 6
+                        }, label: {
+                            Text("Next")
+                        })
+                        .frame(width: 150, height: 35, alignment: .center)
+                        .background(Color(#colorLiteral(red: 0.1725490196, green: 0.6666666667, blue: 0.9450980392, alpha: 1)))
+                        .clipShape(RoundedRectangle(cornerRadius: 10))
+                        .padding(.leading, 20)
+                    }
+                    else if page == 6 {
+                        Button(action: {
+                            self.page = 5
+                        }, label: {
+                            Text("Previous")
+                        })
+                        .frame(width: 150, height: 35, alignment: .center)
+                        .background(Color(#colorLiteral(red: 0.1725490196, green: 0.6666666667, blue: 0.9450980392, alpha: 1)))
+                        .clipShape(RoundedRectangle(cornerRadius: 10))
+                        .padding(.leading, 20)
+                        
+                        Button(action: {
+                            self.page = 7
+                        }, label: {
+                            Text("Next")
+                        })
+                        .frame(width: 150, height: 35, alignment: .center)
+                        .background(Color(#colorLiteral(red: 0.1725490196, green: 0.6666666667, blue: 0.9450980392, alpha: 1)))
+                        .clipShape(RoundedRectangle(cornerRadius: 10))
+                        .padding(.leading, 20)
+                    }
+                    else if page == 7 {
+                        Button(action: {
+                            self.page = 6
+                        }, label: {
+                            Text("Previous")
+                        })
+                        .frame(width: 150, height: 35, alignment: .center)
+                        .background(Color(#colorLiteral(red: 0.1725490196, green: 0.6666666667, blue: 0.9450980392, alpha: 1)))
+                        .clipShape(RoundedRectangle(cornerRadius: 10))
+                        .padding(.leading, 20)
+                    }
+                }
+            }
+            .padding(.bottom, 75)
+        }
+    }
+}
