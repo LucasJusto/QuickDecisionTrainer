@@ -358,26 +358,31 @@ public class GameScene: SKScene, SKPhysicsContactDelegate {
     public func didBegin(_ contact: SKPhysicsContact) {
         let collision: UInt32 = contact.bodyA.categoryBitMask | contact.bodyB.categoryBitMask
         
-        //zBlock collided with player?
-        if collision == 0x1 << 1 | 0x1 << 0 {
-            if contact.bodyA.categoryBitMask == player.categoryBitMask {
-                numberChosen(zBlock: contact.bodyB.node as! ZBlock)
-                contact.bodyB.node?.removeFromParent()
+        if contact.bodyA.node?.parent != nil && contact.bodyB.node?.parent != nil {
+            
+            //zBlock collided with player?
+            if collision == 0x1 << 1 | 0x1 << 0 {
+                if contact.bodyA.categoryBitMask == player.categoryBitMask {
+                    numberChosen(zBlock: contact.bodyB.node as! ZBlock)
+                    contact.bodyB.node?.removeFromParent()
+                }
+                else {
+                    numberChosen(zBlock: contact.bodyA.node as! ZBlock)
+                    contact.bodyA.node?.removeFromParent()
+                }
             }
             else {
-                numberChosen(zBlock: contact.bodyA.node as! ZBlock)
-                contact.bodyA.node?.removeFromParent()
+                
+                numberChosen(zBlock: ZBlock(z: 0))
             }
+            
+            let array = self.children.filter { (node) -> Bool in
+                return node.name == "block"
+            }
+            
+            self.removeChildren(in: array)
+            positioningZBlocks(list: gc.generateZBlocks())
         }
-        else {
-            numberChosen(zBlock: ZBlock(z: 0))
-        }
-        let array = self.children.filter { (node) -> Bool in
-            return node.name == "block"
-        }
-        
-        self.removeChildren(in: array)
-        positioningZBlocks(list: gc.generateZBlocks())
     }
     
     func numberChosen(zBlock: ZBlock) {
@@ -463,9 +468,9 @@ public struct GameView: View {
                     .frame(width: 550, height: 800, alignment: .center)
                 VStack {
                     Text(gc.message!)
-                    .font(.system(size: 35))
-                    .padding(25)
-                    .frame(width: 375, height: 300, alignment: .center)
+                        .font(.system(size: 35))
+                        .padding(25)
+                        .frame(width: 375, height: 300, alignment: .center)
                     
                     Button(action:{
                         gc.gameOver = false
@@ -481,9 +486,9 @@ public struct GameView: View {
                             .frame(width: 250, height: 50, alignment: .center)
                             .contentShape(RoundedRectangle(cornerRadius: 20))
                     })
-                        .buttonStyle(PlainButtonStyle())
-                        .background(Color(#colorLiteral(red: 0.1725490196, green: 0.6666666667, blue: 0.9450980392, alpha: 1)))
-                        .clipShape(RoundedRectangle(cornerRadius: 20))
+                    .buttonStyle(PlainButtonStyle())
+                    .background(Color(#colorLiteral(red: 0.1725490196, green: 0.6666666667, blue: 0.9450980392, alpha: 1)))
+                    .clipShape(RoundedRectangle(cornerRadius: 20))
                 }
             }
         }
@@ -502,7 +507,7 @@ struct KeyEventHandling: NSViewRepresentable {
             keyEvent?.send(event)
         }
     }
-
+    
     func makeNSView(context: Context) -> NSView {
         let view = KeyView()
         view.keyEvent = keyEvent
@@ -511,7 +516,7 @@ struct KeyEventHandling: NSViewRepresentable {
         }
         return view
     }
-
+    
     func updateNSView(_ nsView: NSView, context: Context) {
     }
 }
@@ -572,7 +577,7 @@ public struct WelcomeView: View {
                     .background(Color(#colorLiteral(red: 0.1725490196, green: 0.6666666667, blue: 0.9450980392, alpha: 1)))
                     .clipShape(RoundedRectangle(cornerRadius: 10))
                     .padding(.leading, 35)
-
+                    
                 }
             }
         }
@@ -711,7 +716,7 @@ public struct TutorialView: View {
                         .background(Color(#colorLiteral(red: 0.1725490196, green: 0.6666666667, blue: 0.9450980392, alpha: 1)))
                         .clipShape(RoundedRectangle(cornerRadius: 10))
                         .padding(.leading, 20)
-
+                        
                         
                         Button(action: {
                             self.page = 2
